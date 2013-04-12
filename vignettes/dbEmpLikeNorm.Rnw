@@ -1,0 +1,103 @@
+% \VignetteIndexEntry{Tutorial}
+% \VignetteDepends{dbEmpLikeNorm}
+% \VignetteKeyword{dbEmpLikeNorm}
+% \VignetteKeyword{tutorial}
+% \VignetteKeyword{manual}
+
+
+
+\documentclass[]{article}
+
+\def\firstMarker{$^*$}
+\def\secondMarker{$\dagger$}
+\def\thirdMarker{$\diamond$}
+
+\newcommand{\code}[1]{{\fontseries{sc}\ttfamily\selectfont #1}}
+\newcommand{\pkg}[1]{{\fontseries{b}\selectfont #1}}
+
+
+\title{A tutorial dbEmpLikeNorm \textsf{R} package}
+\author{ Lori A. Shepherd\secondMarker \thirdMarker, Wan-Min Tsai\firstMarker, Albert Vexler\firstMarker,  and Jeffrey C. Miecznikowski\firstMarker \secondMarker}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+Department of Biostatistics\\ University at Buffalo\firstMarker\\
+Department of Biostatistics and Bioinformatics\\Roswell Park Cancer Institute\secondMarker
+\end{center}
+
+\begin{center}
+
+{\tt \thirdMarker las65@buffalo.edu}
+\end{center}
+
+
+\newpage
+
+\section{Introduction}
+
+The \pkg{dbEmplikeNorm} \textsf{R} package provides a function \code{dbELnorm} to be used
+for joint assessment of normality of $k$ independent samples with varying means and standard deviations. 
+The function provides the test statistic and associated $p$-values. The $p$-value can be calculated by Monte-Carlo methods or estimated based on precalculated tables of selected sample sizes and alpha (Type I error) values. For details and algorithms:
+
+\begin{verbatim}
+   Tsai WM, Shepherd LA, Miecznikowski J, Hutson A, Vexler A. (2013). 
+   An EL based test for normality in multiple groups. Department of 
+   Biostatistics. University at Buffalo. Report 1204.
+
+\end{verbatim}
+
+
+\section{Examples}
+
+The following performs an assessment of normality and calculates the $p$-value based on
+Monte-Carlo methods. The null hypothesis is that the data is normally distributed with, perhaps, different means and standard deviations. 
+ 
+<<echo=TRUE, results=verbatim>>=
+
+library(dbEmpLikeNorm)
+normData1 = rnorm(25)
+normData2 = rnorm(40,5,2)
+normData3 = rnorm(15,7,1)
+Lst = list(normData1, normData2, normData3)
+
+dbELnorm(x=Lst, pvl.Table=FALSE)
+
+@
+
+The $p$-value can be estimated based on precalculated tables rather than
+preforming Monte-Carlo methods.  This is controlled by the argument
+'pvl.Table'. To estimate based on tables set the 'pvl.Table' argument to TRUE,
+which is the default setting.  
+
+<<echo=TRUE, results=verbatim>>=
+
+dbELnorm(x=Lst, pvl.Table=TRUE)
+
+@  
+
+The \pkg{dbEmplikeNorm} package also provides a function \code{returnCutoffValue} to be used
+for return the cutoff for significance for the statistic (log scale) obtained from the empirical likelihood based test described in [Tsai 2013]. The cutoff can be calculated by Monte-Carlo methods, estimated based on precalculated tables of selected sample sizes and alpha values, or by a Bayesian approach specified by 'MC.Method', 'Table.Method', and 'Bayes.Method, respectively . The following returns a 0.05 cutoff for a joint assessment of 4 groups with sample sizes 15,25,25,30 calculated via Monte Carlo methods. 
+
+<<echo=TRUE, results=verbatim>>=
+
+returnCutoffValue(numberOfgroups=4, sample.size=c(15,25,25,30),
+                  MC.Method=TRUE,
+                  targetalpha=0.05, num.mc=1000)
+
+@ 
+
+Note the  significance level for the associated cutoff is specified by the user in 'targetalpha' and the number of simulations used to estimate the cutoff is controlled by 'num.mc'. The Monte-Carlo method is the default calculation. To use the table interpolation or the Bayesian method (see details in [Tsai 2013], user should set Table.Method=TRUE or Bayes.Method=TRUE). The following returns the cutoff for joint assessment of 2 groups each with sample size 20 calculated by each method. 
+
+<<echo=TRUE, results=verbatim>>=
+
+returnCutoffValue(numberOfgroups=2, sample.size=20, targetalpha=0.05,
+                  MC.Method=TRUE, Table.Method=TRUE, Bayes.Method=TRUE)
+
+@ 
+
+
+
+\end{document}
